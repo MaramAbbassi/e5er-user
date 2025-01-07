@@ -1,6 +1,7 @@
 package com.example.user;
 
 import com.example.user.Exception.UserNotFoundException;
+import com.example.utils.JwtUtils;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
@@ -15,6 +16,7 @@ import java.util.stream.Collectors;
 //import com.example.utils.JwtUtils;
 
 import org.eclipse.microprofile.rest.client.inject.RestClient;
+import org.mindrot.jbcrypt.BCrypt;
 
 
 @ApplicationScoped
@@ -96,8 +98,7 @@ public class UserService {
     }
 
 
-
- /*   @Transactional
+    @Transactional
     public void registerUser(User user) {
         if (user.getUsername() == null || user.getEmail() == null || user.getPassword() == null) {
             throw new IllegalArgumentException("All fields are required.");
@@ -139,11 +140,11 @@ public class UserService {
             e.printStackTrace();
             throw new RuntimeException("Error during user registration: " + e.getMessage());
         }
-    }*/
+    }
 
 
 
-   /* public String loginUser(String username, String password) {
+    public String loginUser(String username, String password) {
         try {
             // Normalize input username by trimming spaces
             if (username == null || username.trim().isEmpty()) {
@@ -170,7 +171,7 @@ public class UserService {
         } catch (NoResultException e) {
             throw new IllegalArgumentException("User not found with the provided username.");
         }
-    }*/
+    }
 
     @Transactional
     public boolean addLimCoins(Long userId, int amount) {
@@ -342,10 +343,6 @@ public class UserService {
             throw new IllegalArgumentException("Enchere ID " + enchereId + " is already in the user's encheres list.");
         }
     }
-
-
-
-
 
 
    /* public double calculateTotalWonBids(Long userId) {
