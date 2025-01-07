@@ -16,29 +16,42 @@ import java.util.List;
 @Path("/")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
-public interface EnchereServiceClient {
+public interface EnchereRestClient {
 
-    // 1. Placer une enchère
+    @POST
+    @Path("/creteEnchereAleatoire")
+    void createEnchereAleatoire();
+
+    @POST
+    @Path("/{userid}/{pokemonid}/{amount}")
+    Long createEnchere(@PathParam("userid") Long userid, @PathParam("pokemonid") Long pokemonid, @PathParam("amount") double amount);
+
     @GET
     @Path("/{id}/{userId}/{Bid}")
     Response placerBid(@PathParam("id") Long id, @PathParam("userId") Long userId, @PathParam("Bid") double bid);
 
-    // 2. Récupérer une enchère par ID
     @GET
     @Path("/Enchere/{id}")
-    Enchere getEnchereById(@PathParam("id") Long id);
+    Enchere getEncherebyId(@PathParam("id") Long id);
 
-    // 3. Récupérer toutes les enchères actives
     @GET
     List<Enchere> getAllEncheres();
 
-    // 4. Récupérer toutes les enchères par type
     @GET
     @Path("/{type}")
     List<Enchere> getAllEncheresByType(@PathParam("type") String type);
 
-    // 5. Ajouter un historique d'enchère pour un Pokémon
+    @GET
+    @Path("/{id}")
+    Response getEnchere(@PathParam("id") Long id);
+
     @POST
     @Path("/{pokemonId}/addAuctionHistory")
     Response addAuctionHistory(@PathParam("pokemonId") Long pokemonId, Enchere enchere);
+
+    @POST
+    @Path("{enchereid}/{userid}")
+    Response EnleverBid(@PathParam("enchereid") Long enchereid, @PathParam("userid") Long userid);
 }
+
+

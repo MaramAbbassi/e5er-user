@@ -102,7 +102,7 @@ public class UserResource {
     @POST
     @Path("/{userId}/abandon-bid/{bidId}")
     public Response abandonBid(@PathParam("userId") Long userId, @PathParam("bidId") Long bidToAbandonId) {
-        String result = userService.abandonBids(userId, bidToAbandonId);
+        String result = userService.abandonBid(userId, bidToAbandonId);
         return Response.ok(result).build();
     }
 
@@ -110,13 +110,6 @@ public class UserResource {
     @Path("/{userId}/create-enchere")
     public Response createEnchere(@PathParam("userId") Long userId, @QueryParam("pokemonId") Long pokemonId, @QueryParam("startingPrice") double startingPrice) {
         String result = userService.createEnchere(userId, pokemonId, startingPrice);
-        return Response.ok(result).build();
-    }
-
-    @DELETE
-    @Path("/{userId}/delete-enchere/{enchereId}")
-    public Response deleteEnchere(@PathParam("userId") Long userId, @PathParam("enchereId") Long enchereId) {
-        String result = userService.deleteEnchere(userId, enchereId);
         return Response.ok(result).build();
     }
 

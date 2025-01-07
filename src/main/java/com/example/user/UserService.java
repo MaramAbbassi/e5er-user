@@ -33,7 +33,7 @@ public class UserService {
 
     @Inject
     @RestClient
-    EnchereServiceClient enchereClient;
+    EnchereRestClient enchereClient;
 
 
     public List<User> getAllUsers() {
@@ -280,9 +280,8 @@ public class UserService {
     @Transactional
     public void placeBid(Long userId, Long enchereId, double amount) {
         User user = findUserById(userId);
-        Enchere enchere = enchereClient.getEnchereById(enchereId);
+        Enchere enchere = enchereClient.getEncherebyId(enchereId);
         enchereClient.placerBid(userId, enchereId, amount); // Notify the Enchère microservice
-        // Persist changes
         em.merge(user);
 
 
@@ -290,7 +289,7 @@ public class UserService {
     @Transactional
     public String abandonBid(Long userId, Long bidToAbandonId) {
         User user = findUserById(userId);
-        enchereClient.enleverBid(userId, bidToAbandonId);
+        enchereClient.EnleverBid(userId, bidToAbandonId);
         boolean removed = user.getEncheres().remove(bidToAbandonId);
         em.merge(user);
         return removed ? "Bid abandoned successfully." : "Bid not found in user's active bids.";
@@ -305,6 +304,7 @@ public class UserService {
         return "Enchere created successfully with ID: " + createdEnchereId;
     }
 
+    /*
     @Transactional
     public String deleteEnchere(Long userId, Long enchereId) {
         User user = findUserById(userId);
@@ -313,6 +313,8 @@ public class UserService {
         em.merge(user);
         return removed ? "Enchere deleted successfully." : "Enchere not found in user's active encheres.";
     }
+    */
+
 
     @Transactional
     public void addEnchereToActive(Long userId, Long enchereId) {
