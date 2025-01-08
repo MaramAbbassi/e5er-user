@@ -49,9 +49,14 @@ public interface EnchereRestClient {
     @Path("/{pokemonId}/addAuctionHistory")
     Response addAuctionHistory(@PathParam("pokemonId") Long pokemonId, Enchere enchere);
 
-    @POST
+    /*@POST
     @Path("{enchereid}/{userid}")
     Response EnleverBid(@PathParam("enchereid") Long enchereid, @PathParam("userid") Long userid);
+     */
+
+    @DELETE
+    @Path("/{enchereid}/bids/{userid}")
+    Response enleverBid(@PathParam("enchereid") Long enchereid, @PathParam("userid") Long userid);
 }
 
 

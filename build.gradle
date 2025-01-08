@@ -24,9 +24,11 @@ dependencies {
     implementation 'jakarta.validation:jakarta.validation-api:3.0.2'
     implementation 'org.hibernate.validator:hibernate-validator:8.0.1.Final'
     implementation 'io.quarkus:quarkus-hibernate-orm'
-    implementation 'io.quarkus:quarkus-jdbc-mariadb'
+
     implementation 'org.mindrot:jbcrypt:0.4'
     implementation 'io.quarkus:quarkus-smallrye-jwt'
+    implementation 'io.quarkus:quarkus-jdbc-h2'
+
 }
 
 group 'com.example.auction'

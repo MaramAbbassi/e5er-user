@@ -53,8 +53,8 @@ public class User {
     private List<Long> encheres = new ArrayList<>();
 
     @ElementCollection
-    @CollectionTable(name = "encher-user", joinColumns = @JoinColumn(name = "user-id"))
-    @Column(name = "enchersDeUser")
+    @CollectionTable(name = "encher_user", joinColumns = @JoinColumn(name = "user-id"))
+    @Column(name = "encheresDeUser")
     private List<Long> encheresDeUser=new ArrayList<>();
 
 
@@ -75,7 +75,7 @@ public class User {
     }
 
     public List<Long> getEncheresDeUser() {
-        return getEncheresDeUser();
+        return encheresDeUser;
     }
 
     public void setEncheresDeUser(List<Long> encheresDeUser) {

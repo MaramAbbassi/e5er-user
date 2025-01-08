@@ -9,6 +9,7 @@ import jakarta.persistence.NoResultException;
 import jakarta.transaction.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -56,8 +57,51 @@ public class UserService {
 
     @Transactional
     public void addUser(User user) {
+        // Validate required fields
+        if (user.getUsername() == null || user.getUsername().trim().isEmpty()) {
+            throw new IllegalArgumentException("Username is required.");
+        }
+        if (user.getEmail() == null || user.getEmail().trim().isEmpty()) {
+            throw new IllegalArgumentException("Email is required.");
+        }
+        if (user.getPassword() == null || user.getPassword().trim().isEmpty()) {
+            throw new IllegalArgumentException("Password is required.");
+        }
+
+        Long usernameCount = em.createQuery(
+                        "SELECT COUNT(u) FROM User u WHERE u.username = :username", Long.class)
+                .setParameter("username", user.getUsername())
+                .getSingleResult();
+        if (usernameCount > 0) {
+            throw new IllegalArgumentException("Username already exists.");
+        }
+
+        Long emailCount = em.createQuery(
+                        "SELECT COUNT(u) FROM User u WHERE u.email = :email", Long.class)
+                .setParameter("email", user.getEmail())
+                .getSingleResult();
+        if (emailCount > 0) {
+            throw new IllegalArgumentException("Email already exists.");
+        }
+
+        try {
+            String hashedPassword = BCrypt.hashpw(user.getPassword(), BCrypt.gensalt());
+            user.setPassword(hashedPassword);
+        } catch (Exception e) {
+            throw new RuntimeException("Error hashing password: " + e.getMessage(), e);
+        }
+
+        if (user.getRole() == null || user.getRole().isEmpty()) {
+            user.setRole("User");
+        }
+
+        if (user.getLimCoins() == 0) {
+            user.setLimCoins(1000);
+        }
+
         em.persist(user);
     }
+
 
     @Transactional
     public void updateUser(Long id, User updatedUser, String authenticatedRole) {
@@ -282,18 +326,44 @@ public class UserService {
         User user = findUserById(userId);
         Enchere enchere = enchereClient.getEncherebyId(enchereId);
         enchereClient.placerBid(userId, enchereId, amount); // Notify the Enchère microservice
+        addEnchereToActive(userId, enchereId);
         em.merge(user);
-
-
     }
+
     @Transactional
-    public String abandonBid(Long userId, Long bidToAbandonId) {
+    public String abandonBid(Long userId, Long enchereId) {
+        // Find the user
         User user = findUserById(userId);
-        enchereClient.EnleverBid(userId, bidToAbandonId);
-        boolean removed = user.getEncheres().remove(bidToAbandonId);
-        em.merge(user);
-        return removed ? "Bid abandoned successfully." : "Bid not found in user's active bids.";
+        if (user == null) {
+            throw new IllegalArgumentException("User with ID " + userId + " not found.");
+        }
+
+        // Check if the user has the specified auction in their active bids
+        if (!user.getEncheres().contains(enchereId)) {
+            return "Auction with ID " + enchereId + " not found in user's active bids.";
+        }
+
+        try {
+            // Call the Enchere microservice to remove the user's bid from the auction
+            enchereClient.enleverBid(enchereId, userId);
+
+            // Remove the auction ID from the user's active bids list
+            boolean removed = user.getEncheres().remove(enchereId);
+
+            // Persist the updated user entity
+            em.merge(user);
+
+            // Return success or failure based on the removal result
+            return removed
+                    ? "Bid abandoned successfully from auction ID " + enchereId + "."
+                    : "Failed to abandon bid from auction ID " + enchereId + ".";
+        } catch (Exception e) {
+            // Handle any exceptions and provide feedback
+            throw new RuntimeException("Error abandoning bid from auction ID " + enchereId + ": " + e.getMessage(), e);
+        }
     }
+
+
 
     @Transactional
     public String createEnchere(Long userId, Long pokemonId, double startingPrice) {
